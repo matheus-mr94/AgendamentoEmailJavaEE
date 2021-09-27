@@ -1,11 +1,8 @@
 package br.com.alura.resources;
 
 import java.util.List;
-import java.util.logging.Logger;
 
-import javax.ejb.EJBException;
 import javax.inject.Inject;
-import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -20,7 +17,6 @@ import br.com.alura.entities.AgendamentoEmail;
 @Path("/agendamentoemail")
 public class AgendamentoEmailResource {
 	
-	private static Logger logger = Logger.getLogger(AgendamentoEmailResource.class.getName());
 	
 	@Inject
 	private AgendamentoEmailBusiness agendamentoEmailBusiness;
@@ -36,19 +32,8 @@ public class AgendamentoEmailResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response salvarAgendamentoEmail(AgendamentoEmail agendamentoEmail) {
-		try {
-			agendamentoEmailBusiness.salvarAgendamentosEmail(agendamentoEmail);
-		}catch(EJBException e) {
-			
-			if(e.getCause() instanceof ConstraintViolationException) {
-				logger.info(e.getMessage());
-			}else {
-				logger.severe(e.getMessage());
-			}
-			
-			throw e;
-		}
-			
+		
+		agendamentoEmailBusiness.salvarAgendamentosEmail(agendamentoEmail);
 			
 		return Response
 				.status(201)
