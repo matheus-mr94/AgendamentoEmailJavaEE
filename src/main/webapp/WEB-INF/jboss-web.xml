@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-web>
+	
+<!-- 	configurando o context root para ser só o / -->
+    <context-root>/</context-root>
+
+</jboss-web>
