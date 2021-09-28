@@ -50,8 +50,12 @@ public class AgendamentoEmailBusiness {
 	}
 	
 	public List<AgendamentoEmail> listarAgendamentoEmailsNaoEnviados(){
-		
 		return agendamentoEmailDao.listarAgendamentoEmailsNaoEnviados();
+	}
+	
+	public void marcarEnviados(AgendamentoEmail agendamentoEmail) {
+		agendamentoEmail.setEnviado(true);
+		agendamentoEmailDao.atualizarAgendamentoEmail(agendamentoEmail);
 	}
 	
 	public void enviarEmail(AgendamentoEmail agendamentoEmail) {
@@ -60,7 +64,9 @@ public class AgendamentoEmailBusiness {
 		    mensagem.setFrom(sessaoEmail.getProperty(EMAIL_FROM));
 		    mensagem.setRecipients(Message.RecipientType.TO, agendamentoEmail.getEmail());
 		    mensagem.setSubject(agendamentoEmail.getAssunto());
+		    
 		    mensagem.setText(Optional.ofNullable(agendamentoEmail.getMensagem()).orElse(""));
+		    
 		    Transport.send(mensagem,
 		    sessaoEmail.getProperty(EMAIL_USER),
 		    sessaoEmail.getProperty(EMAIL_PASSWORD));
