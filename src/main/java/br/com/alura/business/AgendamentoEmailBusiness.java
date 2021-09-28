@@ -5,6 +5,10 @@ import java.util.Optional;
 
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -20,6 +24,7 @@ import br.com.alura.interceptor.Logger;
 
 @Stateless
 @Logger
+@TransactionManagement(TransactionManagementType.CONTAINER)
 public class AgendamentoEmailBusiness {
 	
 	@Inject
@@ -36,17 +41,19 @@ public class AgendamentoEmailBusiness {
 		return agendamentoEmailDao.listarAgendamentosEmail();
 	}
 	
-	public void salvarAgendamentosEmail(@Valid AgendamentoEmail agendamentoEmail) throws BusinessException {
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public void salvarAgendamentosEmail(@Valid AgendamentoEmail agendamentoEmail) {
 		
 		if(!agendamentoEmailDao
 				.listarAgendamentoEmailPorEmail(agendamentoEmail.getEmail())
 				.isEmpty()) {
-			throw new BusinessException("Email já está agendado.");
+			throw new RuntimeException("Email já está agendado.");
 			
 		}
 		
 		agendamentoEmail.setEnviado(false);
 		agendamentoEmailDao.salvarAgendamentoEmail(agendamentoEmail);
+		throw new RuntimeException();
 	}
 	
 	public List<AgendamentoEmail> listarAgendamentoEmailsNaoEnviados(){
@@ -58,7 +65,7 @@ public class AgendamentoEmailBusiness {
 		agendamentoEmailDao.atualizarAgendamentoEmail(agendamentoEmail);
 	}
 	
-	public void enviarEmail(AgendamentoEmail agendamentoEmail) {
+	public void enviarEmail(AgendamentoEmail agendamentoEmail) throws BusinessException {
 		try {
 		    MimeMessage mensagem = new MimeMessage(sessaoEmail);
 		    mensagem.setFrom(sessaoEmail.getProperty(EMAIL_FROM));
@@ -71,7 +78,7 @@ public class AgendamentoEmailBusiness {
 		    sessaoEmail.getProperty(EMAIL_USER),
 		    sessaoEmail.getProperty(EMAIL_PASSWORD));
 		} catch (MessagingException e) {
-		    throw new RuntimeException(e);
+		    throw new BusinessException();
 		}
 	}
 }

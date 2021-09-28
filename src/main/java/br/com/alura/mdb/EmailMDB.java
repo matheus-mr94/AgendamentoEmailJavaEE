@@ -8,6 +8,7 @@ import javax.jms.MessageListener;
 
 import br.com.alura.business.AgendamentoEmailBusiness;
 import br.com.alura.entities.AgendamentoEmail;
+import br.com.alura.exception.BusinessException;
 import br.com.alura.interceptor.Logger;
 
 @Logger
@@ -28,7 +29,7 @@ public class EmailMDB implements MessageListener {
 		try {
 			AgendamentoEmail agendamentoEmail = message.getBody(AgendamentoEmail.class);
 			agendamentoEmailBusiness.enviarEmail(agendamentoEmail);
-		} catch (JMSException e) {
+		} catch (JMSException | BusinessException e) {
 			throw new RuntimeException(e);
 		}
 	}
