@@ -26,59 +26,55 @@ import br.com.alura.interceptor.Logger;
 @Logger
 @TransactionManagement(TransactionManagementType.CONTAINER)
 public class AgendamentoEmailBusiness {
-	
+
 	@Inject
 	private AgendamentoEmailDao agendamentoEmailDao;
-	
+
 	@Resource(lookup = "java:jboss/mail/AgendamentoMailSession")
 	private Session sessaoEmail;
-	
+
 	private static String EMAIL_FROM = "mail.address";
 	private static String EMAIL_USER = "mail.smtp.user";
 	private static String EMAIL_PASSWORD = "mail.smtp.pass";
-	
-	public List<AgendamentoEmail> listarAgendamentosEmail(){
+
+	public List<AgendamentoEmail> listarAgendamentosEmail() {
 		return agendamentoEmailDao.listarAgendamentosEmail();
 	}
-	
+
 	@TransactionAttribute(TransactionAttributeType.REQUIRED)
-	public void salvarAgendamentosEmail(@Valid AgendamentoEmail agendamentoEmail) {
-		
-		if(!agendamentoEmailDao
-				.listarAgendamentoEmailPorEmail(agendamentoEmail.getEmail())
-				.isEmpty()) {
-			throw new RuntimeException("Email já está agendado.");
-			
+	public void salvarAgendamentoEmail(@Valid AgendamentoEmail agendamentoEmail) throws BusinessException {
+
+		if (!agendamentoEmailDao.listarAgendamentoEmailPorEmail(agendamentoEmail.getEmail()).isEmpty()) {
+			throw new BusinessException("Email já está agendado.");
+
 		}
-		
+
 		agendamentoEmail.setEnviado(false);
 		agendamentoEmailDao.salvarAgendamentoEmail(agendamentoEmail);
-		throw new RuntimeException();
+
 	}
-	
-	public List<AgendamentoEmail> listarAgendamentoEmailsNaoEnviados(){
+
+	public List<AgendamentoEmail> listarAgendamentoEmailsNaoEnviados() {
 		return agendamentoEmailDao.listarAgendamentoEmailsNaoEnviados();
 	}
-	
+
 	public void marcarEnviados(AgendamentoEmail agendamentoEmail) {
 		agendamentoEmail.setEnviado(true);
 		agendamentoEmailDao.atualizarAgendamentoEmail(agendamentoEmail);
 	}
-	
+
 	public void enviarEmail(AgendamentoEmail agendamentoEmail) throws BusinessException {
 		try {
-		    MimeMessage mensagem = new MimeMessage(sessaoEmail);
-		    mensagem.setFrom(sessaoEmail.getProperty(EMAIL_FROM));
-		    mensagem.setRecipients(Message.RecipientType.TO, agendamentoEmail.getEmail());
-		    mensagem.setSubject(agendamentoEmail.getAssunto());
-		    
-		    mensagem.setText(Optional.ofNullable(agendamentoEmail.getMensagem()).orElse(""));
-		    
-		    Transport.send(mensagem,
-		    sessaoEmail.getProperty(EMAIL_USER),
-		    sessaoEmail.getProperty(EMAIL_PASSWORD));
+			MimeMessage mensagem = new MimeMessage(sessaoEmail);
+			mensagem.setFrom(sessaoEmail.getProperty(EMAIL_FROM));
+			mensagem.setRecipients(Message.RecipientType.TO, agendamentoEmail.getEmail());
+			mensagem.setSubject(agendamentoEmail.getAssunto());
+
+			mensagem.setText(Optional.ofNullable(agendamentoEmail.getMensagem()).orElse(""));
+
+			Transport.send(mensagem, sessaoEmail.getProperty(EMAIL_USER), sessaoEmail.getProperty(EMAIL_PASSWORD));
 		} catch (MessagingException e) {
-		    throw new BusinessException();
+			throw new BusinessException();
 		}
 	}
 }

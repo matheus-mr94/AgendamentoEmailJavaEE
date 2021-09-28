@@ -34,7 +34,7 @@ public class AgendamentoEmailResource {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response salvarAgendamentoEmail(AgendamentoEmail agendamentoEmail) throws BusinessException {
 		
-		agendamentoEmailBusiness.salvarAgendamentosEmail(agendamentoEmail);
+		agendamentoEmailBusiness.salvarAgendamentoEmail(agendamentoEmail);
 			
 		return Response
 				.status(201)
